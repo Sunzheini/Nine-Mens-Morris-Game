@@ -29,6 +29,28 @@ import os
 from os.path import exists
 
 
+class Game:
+    FILE_PATH = './logz.txt'
+
+    def __init__(self):
+        pass
+
+    def log(self, text):
+        with open(self.FILE_PATH, 'a') as file:
+            file.write(text)
+            file.write('\n')
+
+    @property
+    def display_log_contents(self):
+        with open(self.FILE_PATH, 'r') as file:
+            print(file.read())
+
+    @property
+    def delete_log_file(self):
+        if exists('./logz.txt'):
+            os.remove('./logz.txt')
+
+
 class PlayingField:
     FIELD_SIZE = 7
     F_SYMBOL = 'O'
@@ -58,61 +80,20 @@ class PlayingField:
         print()
 
 
-class Game:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def rotate_player_order(player):
-        if player == 1:
-            return 2
-        return 1
-
-
-class Log:
-    FILE_PATH = './logz.txt'
-
-    def __init__(self):
-        pass
-
-    def log(self, text):
-        with open(self.FILE_PATH, 'a') as file:
-            file.write(text)
-            file.write('\n')
-
-    @property
-    def display_log_contents(self):
-        with open(self.FILE_PATH, 'r') as file:
-            print(file.read())
-
-    @property
-    def delete_log_file(self):
-        if exists('./logz.txt'):
-            os.remove('./logz.txt')
-
-
-new_field = PlayingField()
-new_field.create_field
-new_field.display_field
-
 new_game = Game()
-new_log = Log()
-current_player = 1
+new_field = PlayingField()
 
-while 1:
-# 3 - which player is it
-
-    current_player = new_game.rotate_player_order(current_player)
-    print(f"Player changed to: {current_player}\n")
-
-
-
-
-new_log.log('1212')
-new_log.display_log_contents
-new_log.delete_log_file
+new_game.log('1212')
+new_field.create_field
+new_game.log('1212')
+new_field.display_field
+new_game.log('1212')
+new_game.display_log_contents
+new_game.delete_log_file
 
 
+# while 1:
+#     pass
 # 3 - which player is it
 
 # da izpolzvam args i kwargs
