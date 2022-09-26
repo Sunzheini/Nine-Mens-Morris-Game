@@ -17,14 +17,16 @@ while 1:
 10.        remove piece
 11.        print info about removal
 12.    print final turn info
+13.    rotate player
 
-13. print final info
+14. print final info
 """
 
 # -----------------------------------------------------------------------
 
 
 # 1 - matrix 7 * 7
+import time
 import os
 from os.path import exists
 
@@ -49,7 +51,7 @@ class PlayingField:
         self.matrix.append([self.V_SEP, self.F_SYMBOL, self.H_SEP, self.F_SYMBOL, self.H_SEP, self.F_SYMBOL, self.V_SEP])
         self.matrix.append([self.F_SYMBOL, self.H_SEP, self.H_SEP, self.F_SYMBOL, self.H_SEP, self.H_SEP, self.F_SYMBOL])
 
-        print(f"--Playing field {self.FIELD_SIZE}x{self.FIELD_SIZE} created--\n")
+        print(f"--(Admin) Playing field {self.FIELD_SIZE}x{self.FIELD_SIZE} created--\n")
 
     @property
     def display_field(self):
@@ -59,8 +61,12 @@ class PlayingField:
 
 
 class Game:
+    DEFAULT_PIECES = 9
+
     def __init__(self):
-        pass
+        self.__pieces_left = self.DEFAULT_PIECES
+        self.selected_row = 0
+        self.selected_column = 0
 
     @staticmethod
     def rotate_player_order(player):
@@ -68,88 +74,122 @@ class Game:
             return 2
         return 1
 
+    @property
+    def reduce_pieces_by_1(self):
+        if self.__pieces_left > 0:
+            self.__pieces_left -= 1
+        if self.__pieces_left == 0:
+            global out_of_pieces_flag
+            out_of_pieces_flag = True
 
-class Log:
-    FILE_PATH = './logz.txt'
+    def accept_matrix_rows_and_columns(self):
+        print("Select row and then column to place the piece, separated by ', ', e.g.: '3, 5': ")
+        try:
+            self.selected_row, self.selected_column = [int(i) for i in input().split(', ')]
+            print(f"You have selected: {self.selected_row}, {self.selected_column}")
 
-    def __init__(self):
+        except ValueError:
+            print("---Input must two integers separated by ', '!---\n")
+            self.accept_matrix_rows_and_columns()
+
+    def check_if_out_of_bounds(self):
         pass
 
-    def log(self, text):
-        with open(self.FILE_PATH, 'a') as file:
-            file.write(text)
-            file.write('\n')
-
-    @property
-    def display_log_contents(self):
-        with open(self.FILE_PATH, 'r') as file:
-            print(file.read())
-
-    @property
-    def delete_log_file(self):
-        if exists('./logz.txt'):
-            os.remove('./logz.txt')
 
 
+    # def check_if_outside(row, col, rows, cols):           # validaciq dali sa vytre
+    #     return row < 0 or col < 0 or row >= rows or col >= cols
+
+    def __str__(self):
+        return f"Pieces left: {self.__pieces_left}"
+
+# Logging
+# ------------------------------------------------------------------------------------------------
+# class Log:
+#     FILE_PATH = './logs.txt'
+#
+#     def __init__(self):
+#         pass
+#
+#     def log(self, text):
+#         with open(self.FILE_PATH, 'a') as file:
+#             file.write(text)
+#             file.write('\n')
+#
+#     @property
+#     def display_log_contents(self):
+#         with open(self.FILE_PATH, 'r') as file:
+#             print(file.read())
+#
+#     @property
+#     def delete_log_file(self):
+#         if exists('./logz.txt'):
+#             os.remove('./logz.txt')
+
+
+# new_log.log('1212')
+# new_log.display_log_contents
+# new_log.delete_log_file
+
+# Start-up
+# -------------------------------------------------------------------------------#
 new_field = PlayingField()
 new_field.create_field
 new_field.display_field
-
 new_game = Game()
-new_log = Log()
 current_player = 1
+out_of_pieces_flag = False
+time.sleep(2)
+
+# later: get player names in a dictionary and print winner name at the end
+
+# Loop
+# -------------------------------------------------------------------------------#
 
 while 1:
-# 3 - which player is it
+    # 3 - which player is it
+    print(f"(Admin) Current player is: {current_player}")
 
-    current_player = new_game.rotate_player_order(current_player)
-    print(f"Player changed to: {current_player}\n")
+    # 5 - select place
+    new_game.accept_matrix_rows_and_columns()
 
-
-
-
-new_log.log('1212')
-new_log.display_log_contents
-new_log.delete_log_file
+    # 6 - check if selected place is valid
+    new_game.check_if_out_of_bounds()
 
 
-# 3 - which player is it
 
-# da izpolzvam args i kwargs
-# error handling
-# props
 
+
+    # da izpolzvam args i kwargs
+    # error handling
+    # props
 
 # 4 - number of pieces left to put ont the board before the turn
-# 5 - select place
-# 6 - check if selected place is valid
-
-# def is_outside(row, col, rows, cols):           # validaciq dali sa vytre
-#     return row < 0 or col < 0 or row >= rows or col >= cols
-
-# def accept_matrix_rows_and_columns():
-#     print("Select rows and columns of the matrix, separated by ', ': ")
-#     try:
-#         rows, columns = [int(i) for i in input().split(', ')]
-#         print(f"You have selected matrix size: {rows}, {columns}")
-#
-#         create_matrix_with_given_params(rows, columns)
-#         print_matrix(matrix)
-#
-#     except ValueError:
-#         print("---Input must two integers separated by ', '!---\n")
-#         accept_matrix_rows_and_columns()
+    new_game.reduce_pieces_by_1
+    print(new_game)     # prints number of pieces left
+    if out_of_pieces_flag:
+        break
 
 
 # 7 - check for the 3 x piece condition
+
 # 8 -       select to remove opponent's piece
+
 # 9 -       check if selection is valid
+
 # 10 -      remove piece
+
 # 11 -      print info about removal
+
 # 12 - print final turn info
 
+    # 13 - rotate player
+    current_player = new_game.rotate_player_order(current_player)
+    print(f"(Admin) Player changed to: {current_player}\n")
+    time.sleep(2)
 
-# 13. print final info
-
+# 14. print final info
+print("(Admin) Game finished")
+print(f"(Admin) Winner is Player {current_player}")
 
 # + testing
