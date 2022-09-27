@@ -61,12 +61,40 @@ class PlayingField:
 
 
 class Game:
-    DEFAULT_PIECES = 9
+    DEFAULT_PIECES = 18
 
     def __init__(self):
         self.__pieces_left = self.DEFAULT_PIECES
         self.selected_row = 0
         self.selected_column = 0
+        self.possible_combos = [(0, 0), (0, 3), (0, 6),
+                                (1, 1), (1, 3), (1, 5),
+                                (2, 2), (2, 3), (2, 4),
+                                (3, 0), (3, 1), (3, 2), (3, 4), (3, 5), (3, 6),
+                                (4, 2), (4, 3), (4, 4),
+                                (5, 1), (5, 3), (5, 5),
+                                (6, 0), (6, 3), (6, 6),
+                                ]
+        self.player_1_placements = []
+        self.player_2_placements = []
+        self.combos_3_piece = [[(0, 0), (0, 3), (0, 6)],
+                               [(1, 1), (1, 3), (1, 5)],
+                               [(2, 2), (2, 3), (2, 4)],
+                               [(3, 0), (3, 1), (3, 2)],
+                               [(3, 4), (3, 5), (3, 6)],
+                               [(4, 2), (4, 3), (4, 4)],
+                               [(5, 1), (5, 3), (5, 5)],
+                               [(6, 0), (6, 3), (6, 6)],
+
+                               [(0, 0), (3, 0), (6, 0)],
+                               [(1, 1), (3, 1), (5, 1)],
+                               [(2, 2), (3, 2), (4, 2)],
+                               [(0, 3), (1, 3), (2, 3)],
+                               [(4, 3), (5, 3), (6, 3)],
+                               [(2, 4), (3, 4), (4, 4)],
+                               [(1, 5), (3, 5), (5, 5)],
+                               [(0, 6), (3, 6), (6, 6)],
+                               ]
 
     @staticmethod
     def rotate_player_order(player):
@@ -86,22 +114,70 @@ class Game:
         print("Select row and then column to place the piece, separated by ', ', e.g.: '3, 5': ")
         try:
             self.selected_row, self.selected_column = [int(i) for i in input().split(', ')]
-            print(f"You have selected: {self.selected_row}, {self.selected_column}")
+
+            if (self.selected_row - 1, self.selected_column - 1) not in self.possible_combos:
+                print("---Not a valid point selected!---\n")
+                self.accept_matrix_rows_and_columns()
+            else:
+                if current_player == 1:
+                    self.player_1_placements.append((self.selected_row-1, self.selected_column-1))
+                else:
+                    self.player_2_placements.append((self.selected_row-1, self.selected_column-1))
+                print(f"You have selected: {self.selected_row}, {self.selected_column}")
 
         except ValueError:
             print("---Input must two integers separated by ', '!---\n")
             self.accept_matrix_rows_and_columns()
 
-    def check_if_out_of_bounds(self):
-        pass
+    def check_3_piece_on_a_row(self):
+        if current_player == 1:
+            temp = self.combos_3_piece.copy()
 
+            for i in range(len(temp)):
+            # for [(0, 0), (0, 3), (0, 6)]
 
+                for j in range(len(temp[i])-1, -1, -1):
+                # for each (0, 0)
 
-    # def check_if_outside(row, col, rows, cols):           # validaciq dali sa vytre
-    #     return row < 0 or col < 0 or row >= rows or col >= cols
+                    if temp[i][j] in self.player_1_placements:
+                        temp[i].pop()
+
+                if len(temp[i]) == 0:
+                    print(f"Combo Nr.: {i}")
+                    return
+            return
+
+        if current_player == 2:
+            temp = self.combos_3_piece.copy()
+
+            for i in range(len(temp)):
+                # for [(0, 0), (0, 3), (0, 6)]
+
+                for j in range(len(temp[i]) - 1, -1, -1):
+
+                    # for each (0, 0)
+
+                    if temp[i][j] in self.player_2_placements:
+                        temp[i].pop()
+
+                if len(temp[i]) == 0:
+                    print(f"Combo Nr.: {i}")
+                    return
+            return
+
+    def display_player_placements(self):
+        print("Player 1 positions:", end='')
+        print(*self.player_1_placements, sep=', ')
+        print("Player 2 positions:", end='')
+        print(*self.player_2_placements, sep=', ')
 
     def __str__(self):
         return f"Pieces left: {self.__pieces_left}"
+
+
+
+
+
 
 # Logging
 # ------------------------------------------------------------------------------------------------
@@ -151,27 +227,14 @@ while 1:
     print(f"(Admin) Current player is: {current_player}")
 
     # 5 - select place
-    new_game.accept_matrix_rows_and_columns()
-
     # 6 - check if selected place is valid
-    new_game.check_if_out_of_bounds()
-
-
-
-
-
-    # da izpolzvam args i kwargs
-    # error handling
-    # props
-
-# 4 - number of pieces left to put ont the board before the turn
-    new_game.reduce_pieces_by_1
-    print(new_game)     # prints number of pieces left
-    if out_of_pieces_flag:
-        break
-
+    new_game.accept_matrix_rows_and_columns()
+    new_game.display_player_placements()
 
 # 7 - check for the 3 x piece condition
+    new_game.check_3_piece_on_a_row()
+
+
 
 # 8 -       select to remove opponent's piece
 
@@ -183,9 +246,20 @@ while 1:
 
 # 12 - print final turn info
 
+    # 4 - number of pieces left to put ont the board before the turn
+    new_game.reduce_pieces_by_1
+    print(new_game)  # prints number of pieces left
+    if out_of_pieces_flag:
+        break
+
+
+# now movement only
+
+
     # 13 - rotate player
     current_player = new_game.rotate_player_order(current_player)
-    print(f"(Admin) Player changed to: {current_player}\n")
+    print(f"(Admin) Player changed to: {current_player}")
+    print("-------------------------------------------\n")
     time.sleep(2)
 
 # 14. print final info
